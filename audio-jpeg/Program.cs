@@ -35,11 +35,14 @@ namespace audio_jpeg
 
 				// fill bitmap with data
 				const int bitmapWidth = 1024;
+				const uint argbMask = 0xFFFFFF;
 				audioBitmap = new Bitmap(bitmapWidth, (int)Math.Ceiling(buffer.Length / (double)bitmapWidth));
 				for (int i = 0; i < buffer.Length; i++)
 				{
-					int sampleValue = (int)Math.Abs(255 * (buffer[i] / peak));
-					audioBitmap.SetPixel(i % bitmapWidth, i / bitmapWidth, Color.FromArgb(sampleValue, sampleValue, sampleValue));
+					// use RGB channels to store float sample as 24-bit int
+					uint colorArgb = (uint)(argbMask * ((buffer[i] / peak / 2f) + 0.5f));
+					Color pixelColor = Color.FromArgb((int)(colorArgb | 0xFF000000));	// set alpha bits to full
+					audioBitmap.SetPixel(i % bitmapWidth, i / bitmapWidth, pixelColor);
 				}
 			}
 
